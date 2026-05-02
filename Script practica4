@@ -1,0 +1,34 @@
+# Instalar y cargar paquetes (solo la primera vez necesitas install.packages)
+install.packages("pacman") 
+library("pacman")
+
+# Cargar los paquetes necesarios
+p_load("ggplot2", "dplyr", "tidyr", "vroom")
+
+# Importar los datos desde tu repositorio
+datos_curva <- vroom(file = "https://raw.githubusercontent.com/anapau2004/practica-4/refs/heads/main/Datos%20Curva%20G1%20y%20G2.csv")
+
+# Revisar los primeros datos
+head(datos_curva)
+
+# Pasar a formato largo: todas las columnas excepto Cycle
+datos_largos <- datos_curva %>%
+  pivot_longer(cols = -Cycle,   # todas las columnas excepto Cycle
+               names_to = "Muestra",
+               values_to = "Fluorescencia") %>%
+  filter(!is.na(Fluorescencia)) # quitar valores vacíos
+
+# Crear la gráfica con todas las curvas
+grafica_completa <- ggplot(datos_largos, aes(x = Cycle, y = Fluorescencia,
+                                             color = Muestra)) +
+  geom_line(size = 1.2) +
+  geom_point(size = 1.5) +
+  labs(x = "Ciclos",
+       y = "Fluorescencia",
+       title = "Práctica 4: qPCR y análisis absoluto",
+       subtitle = "Curvas de amplificación: G1-M, G2-M y concentraciones",
+       caption = "Creado por APEA, ARDM, RPP") +
+  theme_minimal(base_size = 14)
+
+# Mostrar la gráfica final
+grafica_completa
